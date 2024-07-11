@@ -1,4 +1,4 @@
-dotenv.config();
+
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -6,20 +6,21 @@ import passport from "passport";
 import session from "express-session";
 import path from "path";
 
-import "./src/passport/github.auth.js";
+import "./backend/passport/github.auth.js";
 
-import userRoutes from "./src/routes/userRoutes.js";
-import exploreRoutes from "./src/routes/exploreRoutes.js";
-import authRoutes from "./src/routes/authRoutes.js";
+import userRoutes from "./backend/routes/userRoutes.js";
+import exploreRoutes from "./backend/routes/exploreRoutes.js";
+import authRoutes from "./backend/routes/authRoutes.js";
 
-import connectMongoDB from "./src/db/connectMongoDB.js";
+import connectMongoDB from "./backend/db/connectMongoDB.js";
 
 
-
+dotenv.config({path: "./"});
 const app = express();
 
 const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve();
+const __dirname = path.resolve("./");
+console.log("__dirname",__dirname);
 
 app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
@@ -30,12 +31,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/explore", exploreRoutes);
 
-app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.use(express.static(path.join(__dirname, "/frontend/build")));
 
-app.get("/", (req, res) => {
-	res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "frontend", "build", "index.html"));
 });
-
 app.listen(PORT, () => {
 	console.log(`Server started on http://localhost:${PORT}`);
 	connectMongoDB();
