@@ -6,7 +6,7 @@ import Repos from "../components/Repos";
 import Search from "../components/Search";
 import SortRepos from "../components/SortRepos";
 import Spinner from "../components/Spinner";
-import axios from 'axios';
+import config from "../config";
 
 const HomePage = () => {
 	const [userProfile, setUserProfile] = useState(null);
@@ -15,25 +15,19 @@ const HomePage = () => {
 
 	const [sortType, setSortType] = useState("recent");
 
-	const getUserProfileAndRepos = useCallback(async (login = "Saransh-Sethia") => {
+	const getUserProfileAndRepos = useCallback(async (username = "Saransh-Sethia") => {
 		setLoading(true);
 		try {
-			const res = await axios.get(`https://api.github.com/users/${login}`);
-      
-			const result = await res.data;
-      const repo = await axios.get(result.repos_url)
-      const repoRes = await repo.data;
-      const resArr = [];
-      const repoArr = [];
-      resArr.push(result.login)
-      repoArr.push(repoRes)
-      console.log('result', resArr)
-      console.log('repos', repoArr)
-			// repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); //descending, recent first
-			setRepos(repoArr);
-			setUserProfile(result);
+			const res = await fetch(`${config.endpoint}/api/users/profile/${username}`);
+			console.log(res);
+			const {userProfile, repos} = await res.json()
+			
+			repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); //descending, recent first
 
-			return result;
+			setRepos(repos);
+			setUserProfile(userProfile);
+            console.log('user-profile', userProfile)
+			return { userProfile, repos };
 		} catch (error) {
 			toast.error(error.message);
 		} finally {

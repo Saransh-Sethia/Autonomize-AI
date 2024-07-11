@@ -7,7 +7,6 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Repos from '../components/Repos';
 import Spinner from '../components/Spinner';
-import axios from 'axios';
 
 const ExplorePage = () => {
 	const [loading, setLoading] = useState(false);
@@ -18,11 +17,9 @@ const ExplorePage = () => {
 		setLoading(true);
 		setRepos([]);
 		try {
-			const res = await axios.get(`https://api.github.com/search/repositories?q=${language}:javascript&sort=stars&order=desc&per_page=10`);
-			const result= await res.data;
-			let resArr = [];
-			resArr.push(result)
-			setRepos(resArr);
+			const res = await fetch("/api/explore/repos/" + language);
+			const { repos } = await res.json();
+			setRepos(repos);
 
 			setSelectedLanguage(language);
 		} catch (error) {
